@@ -19,7 +19,6 @@ This pipeline automates the workflow for downloading genomic data, processing po
 ```bash
 python3 polyASignalMap.py -a ACCESSION_NUMBER -i /path/to/input_dir -o /path/to/output_dir -t paired
 ```
-<br></br>
 **Command-line Arguments**:
 ```bash
 Arguments:[* = Mandatory]
