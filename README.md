@@ -1,11 +1,10 @@
 # polyA Signal Mapping [polyASignalMap]
 
 ## Background
-Understanding the regulation of gene expression is fundamental in molecular biology. One critical aspect involves mapping upstream sequences, particularly those containing polyadenylation signals (polyA). Polyadenylation is a key post-transcriptional modification where a stretch of adenine nucleotides (A) is added to the 3' end of mRNA molecules. These signals are crucial for mRNA stability, transport from the nucleus to the cytoplasm, and initiation of translation.
-Polyadenylation signals, typically represented by sequences like "AATAAA" or variants thereof, are recognized by specific protein complexes that cleave the nascent mRNA transcript and add a poly(A) tail. The exact positioning and strength of these signals influence the efficiency and regulation of gene expression. Therefore, accurately mapping these signals within genomic sequences is essential for deciphering gene regulatory mechanisms.
+Understanding the regulation of gene expression is fundamental in molecular biology. Polyadenylation is a key post-transcriptional modification where a stretch of adenine nucleotides (A) is added to the 3' end of mRNA molecules. These signals are crucial for mRNA stability, transport from the nucleus to the cytoplasm, and initiation of translation. Polyadenylation signals, typically represented by sequences like "AATAAA" or variants thereof, are recognized by specific protein complexes that cleave the nascent mRNA transcript and add a poly(A) tail. The exact positioning and strength of these signals influence the efficiency and regulation of gene expression. Therefore, accurately mapping these signals within genomic sequences is essential for deciphering gene regulatory mechanisms.
 
 ## Key Components
-This pipeline automates the workflow for downloading genomic data, processing polyadenylation sequences, and performing sequence alignment using STAR. It integrates multiple scripts to facilitate a seamless data processing workflow from start to finish.
+This pipeline automates the workflow for downloading genomic data, processing polyadenylation sequences, and performing sequence alignment. It integrates multiple scripts to facilitate a seamless data processing workflow from start to finish.
 
 ## Unique Features
 
@@ -14,7 +13,7 @@ This pipeline automates the workflow for downloading genomic data, processing po
 <br>![polyAsignal](https://github.com/sobiaidrees1/polyASignalMap/assets/74347135/7d2661a5-eb75-46a9-8a73-47c6ce8d733c) </br>
 <span style="font-size: 8px;">**Figure 1.** Workflow of polyAsignal pipeline. The pipeline starts by retrieving the genome and annotation files [GFF] from the NCBI database based on the accession number provided by the user. Genome file is then split into individual gene sequences based on the information in the GFF file, and CDS for each gene are retrieved. The pipeline then looks for polyA signals within individual genes and gets the upstream sequence (20 nuceltodies alongwith polyASignal). If a gene has one or more than one polyA Signals, then coordinates of their upstream and polyA sequence are retrieved from the genome, and are saved into a new annotation file. This annotation file is then used to map reads to the reference genome. The pipeline supports both single-end and paired-end sequencing data.</span>
 ## Usage
-<br>polyASignalMap pipeline can be used two ways.</br> 
+<br>polyASignalMap pipeline can be used in two ways.</br> 
 <br></br>
 **Method # 1:** User can either run it directly :
 ```bash
@@ -28,7 +27,7 @@ Arguments:[* = Mandatory]
   -h, --help            show this help message and exit
 *  -a ACCESSION, --accession ACCESSION
                         NCBI accession number
-*  -o OUTPUTDIR, --outputdir OUTPUTDIR
+   -o OUTPUTDIR, --outputdir OUTPUTDIR
                         Output directory (default is current directory)
   -m MAX_READ_LENGTH, --max_read_length MAX_READ_LENGTH
                         Maximum read length for STAR indexing (default is 100)
@@ -77,9 +76,6 @@ Arguments:[* = Mandatory]
 
 **Method # 2:** A singularity container [ polyASignalMap.sif] is also provided to avoid installation of required packages. 
 
-
-
-```
 ### Running the pipeline using singualrity container
 
 To run the pipeline, use the following command:
@@ -90,7 +86,7 @@ singualrity run polyASignalMap.sif -h
 Example usage:
 singualrity run polyASignalMap.sif  -a ACCESSION_NUMBER -i /path/to/input_dir -o /path/to/output_dir -t paired
 ```
-polyASignalMap is free software, made available under a GNU General Public License. This program comes with ABSOLUTELY NO WARRANTY. See distributed LICENSE for details.
+polyASignalMap is free program, made available under a GNU General Public License. This program comes with ABSOLUTELY NO WARRANTY. See distributed LICENSE for details.
 
 ## Any questions?
 Please submit an issue to this GitHub repository.
