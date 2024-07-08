@@ -74,7 +74,7 @@ Arguments:[* = Mandatory]
 
 ### Singularity container
 
-**Method # 2:** A singularity container [ polyASignalMap.sif] is also provided to avoid installation of required packages. 
+**Method # 2:** A singularity container [polyASignalMap.sif](https://www.dropbox.com/scl/fi/86t4v5pxdvccaolehef2l/polyASignalMap.sif?rlkey=sdz8kzxo5i438gbux0568ba5z&st=0vh1xnze&dl=0) is also provided to avoid installation of required packages. 
 
 ### Running the pipeline using singualrity container
 
