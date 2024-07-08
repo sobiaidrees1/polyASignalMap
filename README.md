@@ -20,34 +20,7 @@ This pipeline automates the workflow for downloading genomic data, processing po
 ```bash
 python3 polyASignalMap.py -a ACCESSION_NUMBER -i /path/to/input_dir -o /path/to/output_dir -t paired
 ```
-Please make sure all required packages and tools are correctly installed.
-## Requirements
-
-- Python 3.8 or greater
-- STAR aligner
-- Required Python packages (listed in `requirements.txt`)
-
-## Installation
-
-1. **Clone the repository**:
-    ```bash
-    git clone https://github.com/sobiabajwa/polyASignalMap.git
-    cd polyASignalMap
-    ```
-
-2. **Install dependencies**:
-    Ensure you have all necessary dependencies installed. You can install the required Python packages using:
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-3. **Install STAR**:
-    Follow the instructions on the [STAR GitHub page](https://github.com/alexdobin/STAR) to install STAR aligner.
-
-### Singularity container
-
-**Method # 2:** A singularity container [ polyASignalMap.sif] is also provided to avoid installation of required packages. 
-
+<br></br>
 **Command-line Arguments**:
 ```bash
 Arguments:[* = Mandatory]
@@ -75,6 +48,36 @@ Arguments:[* = Mandatory]
   -n GENOMESAINDEXNBASES, --genomeSAindexNbases GENOMESAINDEXNBASES
                         Number of bases to be used for STAR genome indexing
                         (default is 6)
+```
+<br>Please make sure all required packages and tools are correctly installed.</br>
+## Requirements
+
+- Python 3.8 or greater
+- STAR aligner
+- Required Python packages (listed in `requirements.txt`)
+
+## Installation
+
+1. **Clone the repository**:
+    ```bash
+    git clone https://github.com/sobiabajwa/polyASignalMap.git
+    cd polyASignalMap
+    ```
+
+2. **Install dependencies**:
+    Ensure you have all necessary dependencies installed. You can install the required Python packages using:
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+3. **Install STAR**:
+    Follow the instructions on the [STAR GitHub page](https://github.com/alexdobin/STAR) to install STAR aligner.
+
+### Singularity container
+
+**Method # 2:** A singularity container [ polyASignalMap.sif] is also provided to avoid installation of required packages. 
+
+
 
 ```
 ### Running the pipeline using singualrity container
