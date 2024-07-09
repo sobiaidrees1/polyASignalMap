@@ -57,7 +57,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Pipeline for downloading, processing polyA sequences, and aligning with STAR.")
     parser.add_argument("-a", "--accession", required=True, help="NCBI accession number")
     parser.add_argument("-o", "--outputdir", default=".", help="Output directory (default is current directory)")
-    parser.add_argument("-m", "--max_read_length", type=int, default=100, help="Maximum read length for STAR indexing (default is 100)")
+    #parser.add_argument("-m", "--max_read_length", type=int, default=100, help="Maximum read length for STAR indexing (default is 100)")
     parser.add_argument("-i", "--input_dir", required=True, help="Input directory containing FASTQ files")
     parser.add_argument("-u", "--upstream_length", type=int, default=20, help="Length of upstream sequence to extract (default is 20)")
     parser.add_argument("-t", "--type", choices=['paired', 'single'], help="Type of sequencing data (paired-end or single-end)")
@@ -90,7 +90,7 @@ if __name__ == "__main__":
             fasta_file = os.path.join(args.outputdir, f"{args.accession}.fasta")
             gtf_file = os.path.join(args.outputdir, f"{args.accession}.gtf")
             logging.info("Step 3: Starting polyA sequence processing.")
-            run_command(f"python3 src/processing.py -f {fasta_file} -g {gtf_file} -o {args.outputdir} -a {args.accession} -s {' '.join(args.polyA_signals)}")
+            run_command(f"python3 src/processing.py -f {fasta_file} -g {gtf_file} -o {args.outputdir} -a {args.accession} -u {args.upstream_length} -s {' '.join(args.polyA_signals)}")
 
             gtf_file = os.path.join(args.outputdir, f"{args.accession}_processed.gtf")
 
@@ -106,7 +106,7 @@ if __name__ == "__main__":
                 f"--genomeDir {indexed_genome_path} "
                 f"--genomeFastaFiles {genome_file} "
                 f"--sjdbGTFfile {gtf_file} "
-                f"--sjdbOverhang {args.max_read_length - 1} "
+                f"--sjdbOverhang {args.upstream_length + 5} "
                 f"--genomeSAindexNbases {args.genomeSAindexNbases} "  # Use user-specified value
                 f"--sjdbGTFfeatureExon CDS "
                 f"--runThreadN 4"
