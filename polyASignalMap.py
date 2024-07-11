@@ -7,9 +7,10 @@ import glob
 import sys
 
 # Define the default polyA signals
-default_polyA_signals = ["AATAAA"]
+DEFAULT_POLYA_SIGNALS = ["AATAAA"]
 
 def run_command(command):
+    """Run a shell command and log its execution."""
     try:
         logging.info(f"Running command: {command}")
         subprocess.check_call(command, shell=True)
@@ -20,6 +21,7 @@ def run_command(command):
         raise
 
 def overwrite_directory(output_dir):
+    """Check if output directory exists and prompt for overwrite if it does."""
     if os.path.exists(output_dir):
         user_input = input(f"Directory '{output_dir}' already exists. Do you want to overwrite it? (y/n): ")
         if user_input.lower() != 'y':
@@ -30,12 +32,12 @@ def overwrite_directory(output_dir):
     os.makedirs(output_dir)
 
 def get_fastq_files(input_dir):
-    # Get all FASTQ files in the input directory
+    """Get all FASTQ files (.fq.gz and .fastq.gz) in the input directory."""
     fastq_files = glob.glob(os.path.join(input_dir, "*.fq.gz")) + glob.glob(os.path.join(input_dir, "*.fastq.gz"))
     return fastq_files
 
 def get_paired_files(input_dir, extension):
-    # Get all R1 files
+    """Get paired-end R1 and R2/R3 FASTQ files based on the specified extension."""
     r1_files = glob.glob(os.path.join(input_dir, "*_R1*.fq.gz")) + glob.glob(os.path.join(input_dir, "*_R1*.fastq.gz"))
     paired_files = []
 
@@ -52,30 +54,34 @@ def get_paired_files(input_dir, extension):
     return paired_files
 
 if __name__ == "__main__":
-    default_email = "your_default_email@example.com"
+    # Default email for optional use
+    DEFAULT_EMAIL = "your_default_email@example.com"
 
+    # Argument parsing
     parser = argparse.ArgumentParser(description="Pipeline for downloading, processing polyA sequences, and aligning with STAR.")
     parser.add_argument("-a", "--accession", required=True, help="NCBI accession number")
     parser.add_argument("-o", "--outputdir", default=".", help="Output directory (default is current directory)")
-    #parser.add_argument("-m", "--max_read_length", type=int, default=100, help="Maximum read length for STAR indexing (default is 100)")
     parser.add_argument("-i", "--input_dir", required=True, help="Input directory containing FASTQ files")
     parser.add_argument("-u", "--upstream_length", type=int, default=20, help="Length of upstream sequence to extract (default is 20)")
     parser.add_argument("-t", "--type", choices=['paired', 'single'], help="Type of sequencing data (paired-end or single-end)")
     parser.add_argument("-p", "--pipeline_steps", nargs='+', choices=['download', 'convert', 'polyA', 'align'], default=['download', 'convert', 'polyA', 'align'], help="Pipeline steps to execute (default: all)")
     parser.add_argument("-x", "--extension", choices=['R2', 'R3'], default='R2', help="Extension for the second file in paired-end data (default: R2)")
-    parser.add_argument("-s", "--polyA_signals", nargs='+', default=default_polyA_signals, help="PolyA signal sequence to detect (default: AATAAA)")
+    parser.add_argument("-s", "--polyA_signals", nargs='+', default=DEFAULT_POLYA_SIGNALS, help="PolyA signal sequence(s) to detect (default: AATAAA, AGTAAA, ATTAAA, TATAAA)")
     parser.add_argument("-n", "--genomeSAindexNbases", type=int, default=6, help="Number of bases to be used for STAR genome indexing (default is 6)")
-
     args = parser.parse_args()
 
+    # Create output directory if it doesn't exist
     if not os.path.exists(args.outputdir):
         os.makedirs(args.outputdir)
 
+    # Configure logging to a file
     logging.basicConfig(filename=f'{args.accession}_main.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-    print(f"Searching for polyA signals: {', '.join(args.polyA_signals)}")
+    # Display the polyA signals being used
+    logging.info(f"Searching for polyA signals: {', '.join(args.polyA_signals)}")
 
     try:
+        # Pipeline steps based on user input
         if 'download' in args.pipeline_steps:
             logging.info("Step 1: Starting download of FASTA and GFF files.")
             run_command(f"python3 src/dataretrieval.py -a {args.accession} -o {args.outputdir}")
@@ -92,28 +98,30 @@ if __name__ == "__main__":
             logging.info("Step 3: Starting polyA sequence processing.")
             run_command(f"python3 src/processing.py -f {fasta_file} -g {gtf_file} -o {args.outputdir} -a {args.accession} -u {args.upstream_length} -s {' '.join(args.polyA_signals)}")
 
+            # Update the GTF file path after processing
             gtf_file = os.path.join(args.outputdir, f"{args.accession}_processed.gtf")
 
             indexed_genome_path = os.path.join(args.outputdir, "indexed_genome")
             if not os.path.exists(indexed_genome_path):
                 os.makedirs(indexed_genome_path)
 
-            genome_file = os.path.join(args.outputdir, f"{args.accession}.fasta")
+            # STAR indexing of the processed genome
             logging.info("Step 4: Starting STAR indexing.")
             command = (
                 f"STAR "
                 f"--runMode genomeGenerate "
                 f"--genomeDir {indexed_genome_path} "
-                f"--genomeFastaFiles {genome_file} "
+                f"--genomeFastaFiles {fasta_file} "
                 f"--sjdbGTFfile {gtf_file} "
                 f"--sjdbOverhang {args.upstream_length + 5} "
-                f"--genomeSAindexNbases {args.genomeSAindexNbases} "  # Use user-specified value
+                f"--genomeSAindexNbases {args.genomeSAindexNbases} "  # User-specified value
                 f"--sjdbGTFfeatureExon CDS "
                 f"--runThreadN 4"
             )
             run_command(command)
 
         if 'align' in args.pipeline_steps:
+            # Aligning based on sequencing type (paired or single)
             if args.type == 'paired':
                 paired_files = get_paired_files(args.input_dir, args.extension)
                 for r1, r2 in paired_files:
