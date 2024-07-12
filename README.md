@@ -28,8 +28,6 @@ Arguments:[* = Mandatory]
                         NCBI accession number
    -o OUTPUTDIR, --outputdir OUTPUTDIR
                         Output directory (default is current directory)
-  -m MAX_READ_LENGTH, --max_read_length MAX_READ_LENGTH
-                        Maximum read length for STAR indexing (default is 100)
 *  -i INPUT_DIR, --input_dir INPUT_DIR
                         Input directory containing FASTQ files
   -u UPSTREAM_LENGTH, --upstream_length UPSTREAM_LENGTH
