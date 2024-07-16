@@ -62,11 +62,8 @@ def find_polyA_and_upstream(seq, user_defined_signals, upstream_length):
             upstream_sequences.append(str(upstream_sequence))  # Convert Seq to str here
             polyA_positions.append(signal_index)
             detected_signals.add(polyA_signal)
-            print(f"PolyA signal {polyA_signal} detected.")
+            print(f"PolyA signal {polyA_signal} detected in gene.")
             start = signal_end  # Continue searching from the end of the current signal
-            break  # Stop searching after finding the first valid signal
-        if polyA_positions:
-            break
     
     if not polyA_positions:
         print(f"No polyadenylation signal detected in the sequence.")
@@ -102,14 +99,16 @@ def process_polyA(fasta_file, gtf_file, output_dir, accession, upstream_length, 
             combined_upstream_seq = "".join(upstream_seqs)
             combined_sequence += Seq(combined_upstream_seq)
             
-            # Calculate original and final lengths
+            # Calculate original length of the gene
             original_length = end - start
-            final_length = len(combined_upstream_seq)
+            
+            # Calculate total length of all retrieved nucleotides
+            total_upstream_length = sum(len(seq) for seq in upstream_seqs)
             
             gene_lengths.append({
                 "GeneName": gene_name,
                 "OriginalLength": original_length,
-                "FinalLength": final_length,
+                "FinalLength": total_upstream_length,
                 "DetectedPolyASignals": ', '.join(detected_signals)
             })
             
