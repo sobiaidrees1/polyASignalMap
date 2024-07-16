@@ -40,48 +40,38 @@ def parse_attributes(attribute_string):
 
 def find_polyA_and_upstream(seq, user_defined_signals, upstream_length):
     upstream_sequences = []
-    current_start = 0
-    polyA_detected = False
     polyA_positions = []
-    detected_signals = set()  # Set to store detected polyA signals
-    detected_signal = None  # Variable to store which signal was detected
-
-    # Check for user-defined polyA signals first
-    if user_defined_signals:
-        for polyA_signal in user_defined_signals:
-            signal_index = seq.find(polyA_signal)
-            if signal_index != -1:
-                polyA_detected = True
-                detected_signal = polyA_signal
-                signal_end = signal_index + len(polyA_signal)
-                start_index = max(0, signal_index - upstream_length)
-                upstream_sequence = seq[start_index:signal_end]
-                upstream_sequences.append(str(upstream_sequence))  # Convert Seq to str here
-                polyA_positions.append(signal_index)
-                detected_signals.add(polyA_signal)
+    detected_signals = set()
+    
+    search_sequences = user_defined_signals if user_defined_signals else []
+    if "AATAAA" not in search_sequences:
+        search_sequences.append("AATAAA")
+    default_signals = ["ATTAAA", "TATAAA", "AGTAAA", "AAGAAA", "CATAAA", "GATAAA", "AATTAA", "ACTAAA", "AATACA", "AATAGA", "AATATA"]
+    search_sequences.extend([sig for sig in default_signals if sig not in search_sequences])
+    
+    for polyA_signal in search_sequences:
+        print(f"Looking for polyA signal: {polyA_signal}")
+        start = 0
+        while True:
+            signal_index = seq.find(polyA_signal, start)
+            if signal_index == -1:
                 break
-
-    # If no user-defined signal is found, check default signals
-    if not polyA_detected:
-        print(f"User-defined polyA signal(s) not detected in the sequence. Looking for default [AATAAA] signal.")
-        default_signals = ["AATAAA"]
-        for polyA_signal in default_signals:
-            signal_index = seq.find(polyA_signal)
-            if signal_index != -1:
-                polyA_detected = True
-                detected_signal = polyA_signal
-                signal_end = signal_index + len(polyA_signal)
-                start_index = max(0, signal_index - upstream_length)
-                upstream_sequence = seq[start_index:signal_end]
-                upstream_sequences.append(str(upstream_sequence))  # Convert Seq to str here
-                polyA_positions.append(signal_index)
-                detected_signals.add(polyA_signal)
-                break
-
-    if not polyA_detected:
+            signal_end = signal_index + len(polyA_signal)
+            start_index = max(0, signal_index - upstream_length)
+            upstream_sequence = seq[start_index:signal_end]
+            upstream_sequences.append(str(upstream_sequence))  # Convert Seq to str here
+            polyA_positions.append(signal_index)
+            detected_signals.add(polyA_signal)
+            print(f"PolyA signal {polyA_signal} detected.")
+            start = signal_end  # Continue searching from the end of the current signal
+            break  # Stop searching after finding the first valid signal
+        if polyA_positions:
+            break
+    
+    if not polyA_positions:
         print(f"No polyadenylation signal detected in the sequence.")
     
-    return upstream_sequences, polyA_positions, detected_signals, detected_signal
+    return upstream_sequences, polyA_positions, detected_signals
 
 def process_polyA(fasta_file, gtf_file, output_dir, accession, upstream_length, polyA_signals=None):
     genome = SeqIO.read(fasta_file, "fasta")
@@ -106,10 +96,7 @@ def process_polyA(fasta_file, gtf_file, output_dir, accession, upstream_length, 
         gene_name = attr_dict.get("gene_name", f"gene_{idx+1}")
         
         print(f"Processing gene: {gene_name}")
-        upstream_seqs, polyA_positions, detected_signals, detected_signal = find_polyA_and_upstream(cds_seq, user_defined_signals=polyA_signals, upstream_length=upstream_length)
-        
-        if detected_signal:
-            print(f"Detected polyA signal in {gene_name}: {detected_signal}")
+        upstream_seqs, polyA_positions, detected_signals = find_polyA_and_upstream(cds_seq, user_defined_signals=polyA_signals, upstream_length=upstream_length)
         
         if upstream_seqs:
             combined_upstream_seq = "".join(upstream_seqs)
@@ -128,7 +115,6 @@ def process_polyA(fasta_file, gtf_file, output_dir, accession, upstream_length, 
             
             # Generate GTF entries
             for polyA_pos, upstream_seq in zip(polyA_positions, upstream_seqs):
-                # Adjust the end position to include the length of polyA signal
                 original_start = start + polyA_pos - upstream_length
                 original_end = start + polyA_pos - 1 + len(upstream_seq)
 
