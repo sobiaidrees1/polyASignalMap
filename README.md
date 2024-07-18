@@ -54,7 +54,7 @@ Arguments:[* = Mandatory]
 
 1. **Clone the repository**:
     ```bash
-    git clone https://github.com/sobiabajwa/polyASignalMap.git
+    git clone https://github.com/sobiaidrees1/polyASignalMap.git
     cd polyASignalMap
     ```
 
